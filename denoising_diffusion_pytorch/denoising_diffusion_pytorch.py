@@ -749,7 +749,6 @@ class Dataset(Dataset):
 class Trainer(object):
     def __init__(
         self,
-        wandb_run,
         diffusion_model,
         folder,
         *,
@@ -851,6 +850,7 @@ class Trainer(object):
     def train(self):
         accelerator = self.accelerator
         device = accelerator.device
+        run = wandb.init(project="test-project", entity="andrea_stella_thesis")
 
         with tqdm(initial = self.step, total = self.train_num_steps, disable = not accelerator.is_main_process) as pbar:
 
@@ -865,7 +865,7 @@ class Trainer(object):
                         loss = self.model(data)
                         loss = loss / self.gradient_accumulate_every
                         total_loss += loss.item()
-                        wandb_run.log({'loss': total_loss})
+                        run.log({'loss': total_loss})
 
                     self.accelerator.backward(loss)
 
