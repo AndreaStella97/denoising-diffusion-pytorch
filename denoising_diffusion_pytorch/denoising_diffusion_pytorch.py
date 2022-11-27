@@ -1,3 +1,4 @@
+import wandb
 import math
 import copy
 from pathlib import Path
@@ -748,6 +749,7 @@ class Dataset(Dataset):
 class Trainer(object):
     def __init__(
         self,
+        wandb_run,
         diffusion_model,
         folder,
         *,
@@ -863,6 +865,7 @@ class Trainer(object):
                         loss = self.model(data)
                         loss = loss / self.gradient_accumulate_every
                         total_loss += loss.item()
+                        wandb_run.log({'loss': total_loss})
 
                     self.accelerator.backward(loss)
 
