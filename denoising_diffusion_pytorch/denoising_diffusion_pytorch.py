@@ -865,7 +865,7 @@ class Trainer(object):
                         loss = self.model(data)
                         loss = loss / self.gradient_accumulate_every
                         total_loss += loss.item()
-                        run.log({'total_loss': total_loss, 'loss': loss})
+                        run.log({'loss': total_loss})
 
                     self.accelerator.backward(loss)
 
