@@ -868,8 +868,8 @@ class Trainer(object):
 
                     self.accelerator.backward(loss)
                     
-		run.log({'loss': total_loss})
-		
+                run.log({'loss': total_loss})
+
                 accelerator.clip_grad_norm_(self.model.parameters(), 1.0)
                 pbar.set_description(f'loss: {total_loss:.4f}')
 
