@@ -828,8 +828,12 @@ class Trainer(object):
             'ema': self.ema.state_dict(),
             'scaler': self.accelerator.scaler.state_dict() if exists(self.accelerator.scaler) else None
         }
-
-        torch.save(data, str(self.results_folder / f'model-{milestone}.pt'))
+        
+        path = str(self.results_folder / f'model-{milestone}.pt'
+        torch.save(data, path))
+        artifact = wandb.Artifact('model', type='model')
+        artifact.add_file(path)
+        run.log_artifact(artifact)
 
     def load(self, milestone):
         accelerator = self.accelerator
