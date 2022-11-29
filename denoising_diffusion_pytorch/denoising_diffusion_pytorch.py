@@ -749,6 +749,7 @@ class Dataset(Dataset):
 class Trainer(object):
     def __init__(
         self,
+        wandb_run,
         diffusion_model,
         folder,
         *,
@@ -766,9 +767,11 @@ class Trainer(object):
         amp = False,
         fp16 = False,
         split_batches = True,
-        convert_image_to = None
+        convert_image_to = None,
     ):
         super().__init__()
+        
+        self.run = wandb_run
 
         self.accelerator = Accelerator(
             split_batches = split_batches,
@@ -850,8 +853,7 @@ class Trainer(object):
     def train(self):
         accelerator = self.accelerator
         device = accelerator.device
-        run = wandb.init(project="test-project", entity="andrea_stella_thesis")
-
+        
         with tqdm(initial = self.step, total = self.train_num_steps, disable = not accelerator.is_main_process) as pbar:
 
             while self.step < self.train_num_steps:
@@ -868,7 +870,7 @@ class Trainer(object):
 
                     self.accelerator.backward(loss)
                     
-                run.log({'loss': total_loss})
+                self.run.log({'loss': total_loss})
 
                 accelerator.clip_grad_norm_(self.model.parameters(), 1.0)
                 pbar.set_description(f'loss: {total_loss:.4f}')
@@ -894,12 +896,12 @@ class Trainer(object):
                             all_images_list = list(map(lambda n: self.ema.ema_model.sample(batch_size=n), batches))
 
                         all_images = torch.cat(all_images_list, dim = 0)
-                        run.log({'samples' : wandb.Image(all_images)})
+                        self.run.log({'samples' : wandb.Image(all_images)})
                         utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'), nrow = int(math.sqrt(self.num_samples)))
                         self.save(milestone)
                         artifact = wandb.Artifact('model', type='model')
                         artifact.add_file(str(self.results_folder / f'model-{milestone}.pt'))
-                        run.log_artifact(artifact)
+                        self.run.log_artifact(artifact)
                      
                 pbar.update(1)
                 
