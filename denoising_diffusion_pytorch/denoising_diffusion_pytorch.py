@@ -865,7 +865,6 @@ class Trainer(object):
                         loss = self.model(data)
                         loss = loss / self.gradient_accumulate_every
                         total_loss += loss.item()
-                        run.log({'loss': total_loss})
 
                     self.accelerator.backward(loss)
 
@@ -897,5 +896,7 @@ class Trainer(object):
                         self.save(milestone)
 
                 pbar.update(1)
+                
+                run.log({'loss': total_loss, "samples" : wandb.Image(all_images)})
 
         accelerator.print('training complete')
