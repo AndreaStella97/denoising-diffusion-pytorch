@@ -830,7 +830,7 @@ class Trainer(object):
         }
         
         path = str(self.results_folder / f'model-{milestone}.pt'
-        torch.save(data, path))
+        torch.save(data, path)
         artifact = wandb.Artifact('model', type='model')
         artifact.add_file(path)
         run.log_artifact(artifact)
