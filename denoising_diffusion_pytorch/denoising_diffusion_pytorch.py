@@ -867,7 +867,9 @@ class Trainer(object):
                         total_loss += loss.item()
 
                     self.accelerator.backward(loss)
-
+                    
+		run.log({'loss': total_loss})
+		
                 accelerator.clip_grad_norm_(self.model.parameters(), 1.0)
                 pbar.set_description(f'loss: {total_loss:.4f}')
 
@@ -892,11 +894,10 @@ class Trainer(object):
                             all_images_list = list(map(lambda n: self.ema.ema_model.sample(batch_size=n), batches))
 
                         all_images = torch.cat(all_images_list, dim = 0)
+                        run.log({'samples' : wandb.Image(all_images)})
                         utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'), nrow = int(math.sqrt(self.num_samples)))
                         self.save(milestone)
 
                 pbar.update(1)
                 
-                run.log({'loss': total_loss, "samples" : wandb.Image(all_images)})
-
         accelerator.print('training complete')
