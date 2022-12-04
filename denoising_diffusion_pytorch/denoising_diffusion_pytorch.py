@@ -769,10 +769,16 @@ class Trainer(object):
         fp16 = False,
         split_batches = True,
         convert_image_to = None,
+        gamma_scheduler = 0.1,
+        milestones_scheduler = [0, 0]
     ):
         super().__init__()
         
         self.run = wandb_run
+        
+        self.gamma_scheduler = gamma_scheduler
+        
+        self.milestones_scheduler = milestones_scheduler
 
         self.accelerator = Accelerator(
             split_batches = split_batches,
@@ -855,7 +861,7 @@ class Trainer(object):
         accelerator = self.accelerator
         device = accelerator.device
         
-        scheduler = MultiStepLR(self.opt, milestones=[10,20], gamma=0.1)
+        scheduler = MultiStepLR(self.opt, milestones=self.milestones_scheduler, gamma=self.gamma_scheduler)
         
         with tqdm(initial = self.step, total = self.train_num_steps, disable = not accelerator.is_main_process) as pbar:
 
