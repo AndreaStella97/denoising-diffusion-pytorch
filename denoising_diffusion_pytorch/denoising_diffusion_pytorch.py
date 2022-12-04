@@ -13,6 +13,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
 from torch.optim import Adam
+from torch.optim.lr_scheduler import MultiStepLR
 from torchvision import transforms as T, utils
 
 from einops import rearrange, reduce
@@ -854,6 +855,8 @@ class Trainer(object):
         accelerator = self.accelerator
         device = accelerator.device
         
+        scheduler = MultiStepLR(self.opt, milestones=[10,20], gamma=0.1)
+        
         with tqdm(initial = self.step, total = self.train_num_steps, disable = not accelerator.is_main_process) as pbar:
 
             while self.step < self.train_num_steps:
@@ -879,6 +882,10 @@ class Trainer(object):
 
                 self.opt.step()
                 self.opt.zero_grad()
+                
+                scheduler.step()
+                
+                print(self.opt.param_groups[0]["lr"])
 
                 accelerator.wait_for_everyone()
 
