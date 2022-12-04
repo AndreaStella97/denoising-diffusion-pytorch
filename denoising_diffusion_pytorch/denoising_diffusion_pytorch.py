@@ -769,7 +769,7 @@ class Trainer(object):
         fp16 = False,
         split_batches = True,
         convert_image_to = None,
-        gamma_scheduler = 0.1,
+        gamma_scheduler = 1,
         milestones_scheduler = [0, 0]
     ):
         super().__init__()
@@ -890,8 +890,6 @@ class Trainer(object):
                 self.opt.zero_grad()
                 
                 scheduler.step()
-                
-                print(self.opt.param_groups[0]["lr"])
 
                 accelerator.wait_for_everyone()
 
