@@ -733,7 +733,7 @@ class Dataset(Dataset):
         self.folder = folder
         self.image_size = image_size
         self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'**/*.{ext}')]
-        self.labels = labels.type(torch.int) if labels else None
+        self.labels = labels.type(torch.int) if labels is not None else None
 
         maybe_convert_fn = partial(convert_image_to_fn, convert_image_to) if exists(convert_image_to) else nn.Identity()
 
