@@ -379,9 +379,9 @@ class Unet(nn.Module):
         x = self.mid_block1(x, t)
         x = self.mid_attn(x)
         if self.classes_emb and x_class is not None:
-            mid_last_dim = self.mid_attn.size(-1)
+            x_last_dim = x.size(-1)
             class_emb = self.classes_emb(x_class)
-            class_emb = class_emb.unsqueeze(2).expand(-1, -1, mid_last_dim).unsqueeze(3).expand(-1, -1, -1, mid_last_dim)
+            class_emb = class_emb.unsqueeze(2).expand(-1, -1, x_last_dim).unsqueeze(3).expand(-1, -1, -1, x_last_dim)
             x = torch.cat((class_emb, x), dim=1)
         x = self.mid_block2(x, t)
 
