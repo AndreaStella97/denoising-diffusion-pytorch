@@ -928,7 +928,7 @@ class Trainer(object):
                         with torch.no_grad():
                             milestone = self.step // self.save_and_sample_every
                             batches = num_to_groups(self.num_samples, self.batch_size)
-                            img_class = torch.randint(self.num_labels, (1,)) if self.num_labels else None
+                            img_class = torch.randint(self.num_labels, (1,)).to(device) if self.num_labels else None
                             all_images_list = list(map(lambda n: self.ema.ema_model.sample(batch_size=n, img_class = img_class), batches))
 
                         all_images = torch.cat(all_images_list, dim = 0)
