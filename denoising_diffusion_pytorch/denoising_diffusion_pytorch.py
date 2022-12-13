@@ -336,7 +336,7 @@ class Unet(nn.Module):
 
         self.classes_emb = None
         if num_classes:
-            self.classes_emb = nn.Embedding(self.num_classes, dim)
+            self.classes_emb = nn.Embedding(num_classes, dim)
 
         for ind, (dim_in, dim_out) in enumerate(reversed(in_out)):
             is_last = ind == (len(in_out) - 1)
