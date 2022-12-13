@@ -331,12 +331,12 @@ class Unet(nn.Module):
 
         mid_dim = dims[-1]
         self.mid_block1 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
-        self.mid_attn = Residual(PreNorm(mid_dim, Attention(mid_dim)))
+        self.mid_attn = Residual(PreNorm(int(mid_dim/2), Attention(int(mid_dim/2))))
         self.mid_block2 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
 
         self.classes_emb = None
         if num_classes:
-            self.classes_emb = nn.Embedding(num_classes, mid_dim)
+            self.classes_emb = nn.Embedding(num_classes, int(mid_dim/2))
 
         for ind, (dim_in, dim_out) in enumerate(reversed(in_out)):
             is_last = ind == (len(in_out) - 1)
