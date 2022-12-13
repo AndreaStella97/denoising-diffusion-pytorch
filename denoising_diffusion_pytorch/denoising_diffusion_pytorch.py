@@ -378,7 +378,7 @@ class Unet(nn.Module):
 
         x = self.mid_block1(x, t)
         x = self.mid_attn(x)
-        if self.classes_emb and x_class:
+        if self.classes_emb and x_class is not None:
             x = torch.cat((self.classes_emb(x_class), x))
         x = self.mid_block2(x, t)
 
@@ -751,7 +751,7 @@ class Dataset(Dataset):
     def __getitem__(self, index):
         path = self.paths[index]
         img = Image.open(path)
-        label = self.labels[index] if self.labels else None
+        label = self.labels[index] if self.labels is not None else None
         return self.transform(img), label
 
 # trainer class
