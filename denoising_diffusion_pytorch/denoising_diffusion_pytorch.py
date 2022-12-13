@@ -751,7 +751,8 @@ class Dataset(Dataset):
     def __getitem__(self, index):
         path = self.paths[index]
         img = Image.open(path)
-
+        if self.labels is not None:
+            return self.transform(img), self.labels[index]
         return self.transform(img)
 
 # trainer class
@@ -813,7 +814,7 @@ class Trainer(object):
 
         # dataset and dataloader
 
-        self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to, labels = labels)
+        self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to)
         dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = cpu_count())
 
         dl = self.accelerator.prepare(dl)
@@ -882,8 +883,7 @@ class Trainer(object):
                 total_loss = 0.
 
                 for _ in range(self.gradient_accumulate_every):
-                    #if self.num_labels:
-                     #   data, label = next(self.dl).to(device)
+
                     data = next(self.dl).to(device)
 
                     with self.accelerator.autocast():
