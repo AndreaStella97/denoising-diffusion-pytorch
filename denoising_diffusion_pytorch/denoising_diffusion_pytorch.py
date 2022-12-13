@@ -733,7 +733,7 @@ class Dataset(Dataset):
         self.folder = folder
         self.image_size = image_size
         self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'**/*.{ext}')]
-        self.labels = labels
+        self.labels = labels.type(torch.int) if labels else None
 
         maybe_convert_fn = partial(convert_image_to_fn, convert_image_to) if exists(convert_image_to) else nn.Identity()
 
@@ -888,6 +888,7 @@ class Trainer(object):
                     if self.num_labels:
                         data, label = next(self.dl)
                         data = data.to(device)
+                        label = label.to(device)
                     else:
                         data = next(self.dl).to(device)
 
