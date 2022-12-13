@@ -330,14 +330,13 @@ class Unet(nn.Module):
             ]))
 
         mid_dim = dims[-1]
-        print(mid_dim)
         self.mid_block1 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
         self.mid_attn = Residual(PreNorm(mid_dim, Attention(mid_dim)))
         self.mid_block2 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
 
         self.classes_emb = None
         if num_classes:
-            self.classes_emb = nn.Embedding(num_classes, dim)
+            self.classes_emb = nn.Embedding(num_classes, mid_dim)
 
         for ind, (dim_in, dim_out) in enumerate(reversed(in_out)):
             is_last = ind == (len(in_out) - 1)
@@ -380,9 +379,10 @@ class Unet(nn.Module):
         x = self.mid_block1(x, t)
         x = self.mid_attn(x)
         if self.classes_emb and x_class is not None:
-            print(x_class)
-            print(x.size())
-            x = torch.cat((self.classes_emb(x_class), x))
+            mid_last_dim = self.mid_attn.size(-1)
+            class_emb = self.classes_emb(x_class)
+            class_emb = class_emb.unsqueeze(2).expand(-1, -1, mid_last_dim).unsqueeze(3).expand(-1, -1, -1, mid_last_dim)
+            x = torch.cat((class_emb, x), dim=1)
         x = self.mid_block2(x, t)
 
         for block1, block2, attn, upsample in self.ups:
