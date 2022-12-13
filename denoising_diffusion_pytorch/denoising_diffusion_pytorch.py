@@ -379,6 +379,7 @@ class Unet(nn.Module):
         x = self.mid_block1(x, t)
         x = self.mid_attn(x)
         if self.classes_emb and x_class is not None:
+            print(x_class)
             x = torch.cat((self.classes_emb(x_class), x))
         x = self.mid_block2(x, t)
 
