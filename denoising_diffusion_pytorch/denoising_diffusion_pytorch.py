@@ -781,8 +781,8 @@ class Trainer(object):
         convert_image_to = None,
         gamma_scheduler = 1,
         milestones_scheduler = [0, 0],
-        labels = None,
-        num_labels = None
+        #labels = None,
+        #num_labels = None
     ):
         super().__init__()
         
@@ -810,11 +810,11 @@ class Trainer(object):
 
         self.train_num_steps = train_num_steps
         self.image_size = diffusion_model.image_size
-        self.num_labels = num_labels
+        #self.num_labels = num_labels
 
         # dataset and dataloader
 
-        self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to)
+        self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to)#, labels = labels)
         dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = cpu_count())
 
         dl = self.accelerator.prepare(dl)
@@ -883,11 +883,12 @@ class Trainer(object):
                 total_loss = 0.
 
                 for _ in range(self.gradient_accumulate_every):
-
+                    #if self.num_labels:
+                     #   data, label = next(self.dl).to(device)
                     data = next(self.dl).to(device)
 
                     with self.accelerator.autocast():
-                        loss = self.model(data, label)
+                        loss = self.model(data)#, label)
                         loss = loss / self.gradient_accumulate_every
                         total_loss += loss.item()
 
