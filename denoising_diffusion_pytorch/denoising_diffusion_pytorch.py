@@ -751,8 +751,9 @@ class Dataset(Dataset):
     def __getitem__(self, index):
         path = self.paths[index]
         img = Image.open(path)
-        label = self.labels[index] if self.labels is not None else None
-        return self.transform(img), label
+        if self.labels is not None:
+            return self.transform(img), self.labels[index]
+        return self.transform(img)
 
 # trainer class
 
@@ -882,8 +883,9 @@ class Trainer(object):
                 total_loss = 0.
 
                 for _ in range(self.gradient_accumulate_every):
-                    data, label = next(self.dl)
-                    data = data.to(device)
+                    if self.num_labels:
+                        data, label = next(self.dl).to(device)
+                    data = next(self.dl).to(device)
 
                     with self.accelerator.autocast():
                         loss = self.model(data, label)
