@@ -329,10 +329,10 @@ class Unet(nn.Module):
                 Downsample(dim_in, dim_out) if not is_last else nn.Conv2d(dim_in, dim_out, 3, padding = 1)
             ]))
 
-        mid_dim = int(dims[-1]/2)
+        mid_dim = dims[-1]
         self.mid_block1 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
         self.mid_attn = Residual(PreNorm(mid_dim, Attention(mid_dim)))
-        self.mid_block2 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
+        self.mid_block2 = block_klass(mid_dim*2, mid_dim*2, time_emb_dim = time_dim)
 
         self.classes_emb = None
         if num_classes:
