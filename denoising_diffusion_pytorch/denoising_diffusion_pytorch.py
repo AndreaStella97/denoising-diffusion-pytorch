@@ -380,6 +380,7 @@ class Unet(nn.Module):
         x = self.mid_attn(x)
         if self.classes_emb and x_class is not None:
             print(x_class)
+            print(x.size())
             x = torch.cat((self.classes_emb(x_class), x))
         x = self.mid_block2(x, t)
 
