@@ -888,7 +888,7 @@ class Trainer(object):
                     data = next(self.dl).to(device)
 
                     with self.accelerator.autocast():
-                        loss = self.model(data, label)
+                        loss = self.model(data)
                         loss = loss / self.gradient_accumulate_every
                         total_loss += loss.item()
 
