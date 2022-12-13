@@ -888,7 +888,6 @@ class Trainer(object):
                     if self.num_labels:
                         data, label = next(self.dl)
                         data = data.to(device)
-                        label = label.to(device)
                     else:
                         data = next(self.dl).to(device)
 
