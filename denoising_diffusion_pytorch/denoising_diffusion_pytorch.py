@@ -882,7 +882,8 @@ class Trainer(object):
                 total_loss = 0.
 
                 for _ in range(self.gradient_accumulate_every):
-                    data, label = next(self.dl).to(device)
+                    data, label = next(self.dl)
+                    data = data.to(device)
 
                     with self.accelerator.autocast():
                         loss = self.model(data, label)
