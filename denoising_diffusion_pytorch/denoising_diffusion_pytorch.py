@@ -875,6 +875,8 @@ class Trainer(object):
         device = accelerator.device
         
         scheduler = MultiStepLR(self.opt, milestones=self.milestones_scheduler, gamma=self.gamma_scheduler)
+
+        label = None
         
         with tqdm(initial = self.step, total = self.train_num_steps, disable = not accelerator.is_main_process) as pbar:
 
