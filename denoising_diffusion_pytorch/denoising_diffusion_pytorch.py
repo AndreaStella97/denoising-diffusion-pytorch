@@ -932,6 +932,7 @@ class Trainer(object):
                             all_images_list = list(map(lambda n: self.ema.ema_model.sample(batch_size=n, img_class = img_class), batches))
 
                         all_images = torch.cat(all_images_list, dim = 0)
+                        self.run.log({'label': img_class})
                         self.run.log({'samples' : wandb.Image(all_images)})
                         utils.save_image(all_images, str(self.results_folder / f'sample-{milestone}.png'), nrow = int(math.sqrt(self.num_samples)))
                         self.save(milestone)
