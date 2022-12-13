@@ -275,7 +275,7 @@ class Unet(nn.Module):
         learned_sinusoidal_cond = False,
         random_fourier_features = False,
         learned_sinusoidal_dim = 16,
-        num_classes = None
+        num_labels = None
     ):
         super().__init__()
 
@@ -335,8 +335,8 @@ class Unet(nn.Module):
         self.mid_block2 = block_klass(mid_dim, mid_dim, time_emb_dim = time_dim)
 
         self.classes_emb = None
-        if num_classes:
-            self.classes_emb = nn.Embedding(num_classes, mid_dim)
+        if num_labels:
+            self.classes_emb = nn.Embedding(num_labels, mid_dim)
 
         for ind, (dim_in, dim_out) in enumerate(reversed(in_out)):
             is_last = ind == (len(in_out) - 1)
