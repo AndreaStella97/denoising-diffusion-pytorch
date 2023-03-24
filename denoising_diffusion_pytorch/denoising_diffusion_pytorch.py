@@ -382,7 +382,6 @@ class Unet(nn.Module):
             x_last_dim = x.size(-1)
             class_emb = self.classes_emb(x_class)
             class_emb = class_emb.unsqueeze(2).expand(-1, -1, x_last_dim).unsqueeze(3).expand(-1, -1, -1, x_last_dim)
-            #x = torch.cat((class_emb, x), dim=1)
             x = x.add(class_emb)
         x = self.mid_block2(x, t)
 
@@ -731,13 +730,29 @@ class Dataset(Dataset):
         exts = ['jpg', 'jpeg', 'png', 'tiff'],
         augment_horizontal_flip = False,
         convert_image_to = None,
-        labels = None
     ):
         super().__init__()
         self.folder = folder
         self.image_size = image_size
-        self.paths = [p for ext in exts for p in Path(f'{folder}').glob(f'**/*.{ext}')]
-        self.labels = labels.type(torch.int) if labels is not None else None
+        self.paths = [p for ext in exts for p in Path(folder).glob(f'**/*.{ext}')]
+
+        if len(list(Path(folder).glob('*'))) == 0:  # Check if there are subfolders
+            self.labels = None
+            self.num_labels = None
+        else:
+            self.labels = []
+            label_to_idx = {}
+            idx = 0
+
+            for path in self.paths:
+                label = str(path.parent.name)  # The subfolder name corresponds to the label
+                if label not in label_to_idx:
+                    label_to_idx[label] = idx
+                    idx += 1
+                self.labels.append(label_to_idx[label])
+
+            self.labels = torch.tensor(self.labels, dtype=torch.int)
+            self.num_labels = idx + 1
 
         maybe_convert_fn = partial(convert_image_to_fn, convert_image_to) if exists(convert_image_to) else nn.Identity()
 
@@ -784,9 +799,7 @@ class Trainer(object):
         split_batches = True,
         convert_image_to = None,
         gamma_scheduler = 1,
-        milestones_scheduler = [0, 0],
-        labels = None,
-        num_labels = None
+        milestones_scheduler = [0, 0]
     ):
         super().__init__()
         
@@ -814,11 +827,11 @@ class Trainer(object):
 
         self.train_num_steps = train_num_steps
         self.image_size = diffusion_model.image_size
-        self.num_labels = num_labels
 
         # dataset and dataloader
 
         self.ds = Dataset(folder, self.image_size, augment_horizontal_flip = augment_horizontal_flip, convert_image_to = convert_image_to, labels = labels)
+        self.num_labels = self.ds.num_labels
         dl = DataLoader(self.ds, batch_size = train_batch_size, shuffle = True, pin_memory = True, num_workers = cpu_count())
 
         dl = self.accelerator.prepare(dl)
