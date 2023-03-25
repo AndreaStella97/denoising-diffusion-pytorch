@@ -752,10 +752,7 @@ class Dataset(Dataset):
                 self.labels.append(label_to_idx[label])
 
             self.labels = torch.tensor(self.labels, dtype=torch.int)
-            print(len(self.labels))
-            print(label_to_idx)
-            self.num_labels = idx + 1
-            print(self.num_labels)
+            self.num_labels = idx
 
         maybe_convert_fn = partial(convert_image_to_fn, convert_image_to) if exists(convert_image_to) else nn.Identity()
 
